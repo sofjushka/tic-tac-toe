@@ -3,6 +3,7 @@ const ZERO = 'O';
 const EMPTY = ' ';
 const container = document.getElementById('fieldWrapper');
 let currentPlayer = CROSS;
+let frozen = false;
 let field;
 let freeCells;
 
@@ -40,8 +41,10 @@ function cellClickHandler(row, col) {
     console.log(`Clicked on cell: ${row}, ${col}`);
     if (!isValidElement(row, col)) return;
     renderSymbolInCell(currentPlayer, row, col);
-    if (checkWin(currentPlayer)) 
+    if (checkWin(currentPlayer)) {
+        frozen = true;
         alert(`Победил ${currentPlayer}`)
+    }    
     changePlayer();
     freeCells--;
     if (freeCells == 0)
@@ -124,6 +127,9 @@ function highlightWinningCells(axis, index){
 }
 
 function isValidElement(row, col){
+    if (frozen){
+        return false;
+    }
     if (field[row][col] !== -1) return false;
     return true;
 }
@@ -154,6 +160,8 @@ function addResetListener() {
 
 function resetClickHandler() {
     console.log('reset!');
+    currentPlayer = CROSS;
+    frozen = false;
     startGame();
     addResetListener();
 }
