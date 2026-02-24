@@ -1,6 +1,7 @@
 const CROSS = 'X';
 const ZERO = 'O';
 const EMPTY = ' ';
+let currentPlayer = CROSS;
 
 const container = document.getElementById('fieldWrapper');
 
@@ -30,10 +31,18 @@ function cellClickHandler (row, col) {
     // Пиши код тут
     console.log(`Clicked on cell: ${row}, ${col}`);
 
+    renderSymbolInCell(currentPlayer, row, col);
+    changePlayer();
 
     /* Пользоваться методом для размещения символа в клетке так:
         renderSymbolInCell(ZERO, row, col);
      */
+}
+
+function changePlayer(){
+    if (currentPlayer === ZERO)
+        currentPlayer = CROSS
+    else currentPlayer = ZERO
 }
 
 function renderSymbolInCell (symbol, row, col, color = '#333') {
