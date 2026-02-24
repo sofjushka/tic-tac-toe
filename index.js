@@ -4,6 +4,7 @@ const EMPTY = ' ';
 const container = document.getElementById('fieldWrapper');
 let currentPlayer = CROSS;
 let frozen = false;
+let isAIGame = true;
 let field;
 let freeCells;
 
@@ -12,8 +13,10 @@ addResetListener();
 
 function startGame() {
     let input = +document.getElementById('input').value;
+    let checkBox = document.getElementById('check1').value === 'on' ? 1: 0;
+    console.log(checkBox);
     renderGrid(input);
-    initField(input);
+    initField(input, checkBox);
 }
 
 function renderGrid(dimension) {
@@ -31,9 +34,10 @@ function renderGrid(dimension) {
     }
 }
 
-function initField(dimension) {
+function initField(dimension, checkBox) {
     freeCells = dimension * dimension;
     field = Array.from({ length: dimension }, () => Array(dimension).fill(-1));
+    isAIGame = checkBox;
 }
 
 
@@ -137,7 +141,31 @@ function isValidElement(row, col){
 function changePlayer() {
     if (currentPlayer === ZERO)
         currentPlayer = CROSS
-    else currentPlayer = ZERO
+    else {
+        currentPlayer = ZERO
+        if (isAIGame)
+            makeAiMove();
+    }    
+}
+
+function makeAiMove(){
+    let dimension = field.length;
+    let cell = getRandomInt(freeCells);
+    for (let i = 0; i < dimension; i++)
+        for (let j = 0; j < dimension; j++)
+        {
+            if (field[i][j] == -1){
+                cell--;
+            };
+            if (cell === 0) {
+                cellClickHandler(i, j);
+                return;
+            }
+        }
+}
+
+function getRandomInt(n) {
+    return Math.floor(Math.random() * n) + 1;
 }
 
 function renderSymbolInCell(symbol, row, col, color = '#333') {
