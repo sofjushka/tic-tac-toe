@@ -1,9 +1,10 @@
 const CROSS = 'X';
 const ZERO = 'O';
 const EMPTY = ' ';
-let currentPlayer = CROSS;
-
 const container = document.getElementById('fieldWrapper');
+let currentPlayer = CROSS;
+let field;
+let freeCells;
 
 startGame();
 addResetListener();
@@ -11,6 +12,7 @@ addResetListener();
 function startGame() {
     let input = +document.getElementById('input').value;
     renderGrid(input);
+    initField(input);
 }
 
 function renderGrid(dimension) {
@@ -28,16 +30,102 @@ function renderGrid(dimension) {
     }
 }
 
+function initField(dimension) {
+    freeCells = dimension * dimension;
+    field = Array.from({ length: dimension }, () => Array(dimension).fill(-1));
+}
+
+
 function cellClickHandler(row, col) {
-    // Пиши код тут
     console.log(`Clicked on cell: ${row}, ${col}`);
-
+    if (!isValidElement(row, col)) return;
     renderSymbolInCell(currentPlayer, row, col);
+    if (checkWin(currentPlayer)) 
+        alert(`Победил ${currentPlayer}`)
     changePlayer();
+    freeCells--;
+    if (freeCells == 0)
+        alert('Победила дружба');
+}
 
-    /* Пользоваться методом для размещения символа в клетке так:
-        renderSymbolInCell(ZERO, row, col);
-     */
+function checkWin(player) {
+    let boardSize = field.length;
+    for (let i = 0; i < boardSize; i++) {
+        let win = true;
+        for (let j = 0; j < boardSize; j++) {
+            if (field[i][j] !== player) {
+                win = false;
+                break;
+            }
+        }
+        if (win) {
+            highlightWinningCells('row', i);
+            return true;
+        }
+    }
+    for (let j = 0; j < boardSize; j++) {
+        let win = true;
+        for (let i = 0; i < boardSize; i++) {
+            if (field[i][j] !== player) {
+                win = false;
+                break;
+            }
+        }
+        if (win) {
+            highlightWinningCells('col', j);
+            return true;
+        }
+    }
+    let win = true;
+    for (let i = 0; i < boardSize; i++) {
+        if (field[i][i] !== player) {
+            win = false;
+            break;
+        }
+    }
+    if (win) {
+        highlightWinningCells('diag', 0);
+        return true;
+    }
+    win = true;
+    for (let i = 0; i < boardSize; i++) {
+        if (field[i][boardSize - 1 - i] !== player) {
+            win = false;
+            break;
+        }
+    }
+    if (win) {
+        highlightWinningCells('diag', 1);
+        return true;
+    }
+    return false;
+}
+
+function highlightWinningCells(axis, index){
+    dimension = field.length;
+    switch(axis)
+    {
+        case 'col':
+            for (let i = 0; i < dimension; i++){
+                renderSymbolInCell(currentPlayer, i, index, "#f00000aa")
+            }
+            break;
+        case 'row':
+            for (let i = 0; i < dimension; i++){
+                renderSymbolInCell(currentPlayer, index, i, "#f00000aa")
+            }
+            break;
+        case 'diag':
+            for (let i = 0; i < dimension; i++){
+                renderSymbolInCell(currentPlayer, i, index == 0 ? i : dimension - i - 1, "#f00000aa")
+            }
+            break;      
+    }
+}
+
+function isValidElement(row, col){
+    if (field[row][col] !== -1) return false;
+    return true;
 }
 
 function changePlayer() {
@@ -48,7 +136,8 @@ function changePlayer() {
 
 function renderSymbolInCell(symbol, row, col, color = '#333') {
     const targetCell = findCell(row, col);
-
+    field[row][col] = symbol;
+    console.log(field);
     targetCell.textContent = symbol;
     targetCell.style.color = color;
 }
